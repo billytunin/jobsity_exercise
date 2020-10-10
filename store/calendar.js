@@ -1,11 +1,68 @@
+import moment from 'moment'
+
 export const state = () => ({
-  days: 'test'
+  monthName: '',
+  days: [],
+  weekDaysMap: [
+    {
+      name: 'Sunday',
+      number: 0
+    },
+    {
+      name: 'Monday',
+      number: 1
+    },
+    {
+      name: 'Tuesday',
+      number: 2
+    },
+    {
+      name: 'Wednesday',
+      number: 3
+    },
+    {
+      name: 'Thursday',
+      number: 4
+    },
+    {
+      name: 'Friday',
+      number: 5
+    },
+    {
+      name: 'Saturday',
+      number: 6
+    }
+  ]
 })
 
 export const mutations = {
-  setDays(state, newDay) {
-    state.days = newDay
+  setDays(state) {
+    state.days = getMonthToDisplayRange()
+  },
+  setMonthName(state) {
+    state.monthName = moment().format('MMMM')
   }
 }
 
-export const actions = {}
+const getMonthToDisplayRange = () => {
+  const arrayToReturn = []
+  // This moment object will hold the first Sunday in the month. If the first day of the month isn't a Sunday,
+  // it will be the closest previous Sunday to it.
+  const startingDay = moment().startOf('month').day(0)
+  // This moment object will hold the last Saturday in the month. If the last day of the month isn't a Saturday,
+  // it will be the closest next Saturday to it.
+  const endingDay = moment().endOf('month').day(6)
+
+  while (startingDay.isSameOrBefore(endingDay, 'day')) {
+    arrayToReturn.push({
+      monthNumber: startingDay.format('D'),
+      weekNumber: startingDay.day(),
+      formatted: startingDay.format('MMMM Do'),
+      name: startingDay.format('dddd') // DELETE ME: esto lo voy a usar para mostrar el nombre del dia en el modal de agregar reminder
+    })
+
+    startingDay.add(1, 'day')
+  }
+
+  return arrayToReturn
+}

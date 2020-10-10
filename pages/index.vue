@@ -1,11 +1,14 @@
 <template>
   <section class="section">
-    <p>Hi!</p>
+    <calendar />
   </section>
 </template>
 
 <script>
+import Calendar from '~/components/calendar'
+
 export default {
-  name: 'HomePage'
+  name: 'HomePage',
+  components: { Calendar }
 }
 </script>

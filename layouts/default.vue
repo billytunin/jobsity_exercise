@@ -7,5 +7,10 @@
 </template>
 
 <script>
-export default {}
+export default {
+  mounted() {
+    this.$store.commit('calendar/setMonthName')
+    this.$store.commit('calendar/setDays')
+  }
+}
 </script>

@@ -41,8 +41,8 @@ export default {
     [
       'nuxt-vuex-localstorage',
       {
-        // We want to save only calendar store into localStorage
-        localStorage: ['calendar']
+        // We want to save only the reminders store into localStorage
+        localStorage: ['reminders']
       }
     ]
   ],
