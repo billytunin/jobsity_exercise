@@ -1,9 +1,15 @@
 export const state = () => ({
-  days: 'test'
+  dates: {}
 })
 
 export const mutations = {
-  setDays(state, newDay) {
-    state.days = newDay
+  addReminder(state, { reminderObj, date }) {
+    if (state.dates[date]) {
+      state.dates[date].reminders.push(reminderObj)
+    } else {
+      state.dates[date] = {
+        reminders: [{ ...reminderObj }]
+      }
+    }
   }
 }

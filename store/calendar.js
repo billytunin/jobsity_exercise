@@ -1,4 +1,5 @@
 import moment from 'moment'
+import { DATE_FORMAT } from '~/utils/dateTimeStandards'
 
 export const state = () => ({
   monthName: '',
@@ -58,6 +59,7 @@ const getMonthToDisplayRange = () => {
       monthNumber: startingDay.format('D'),
       weekNumber: startingDay.day(),
       formatted: startingDay.format('MMMM Do'),
+      dateFormatted: startingDay.format(DATE_FORMAT),
       name: startingDay.format('dddd') // DELETE ME: esto lo voy a usar para mostrar el nombre del dia en el modal de agregar reminder
     })
 

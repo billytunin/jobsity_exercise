@@ -7,9 +7,14 @@
         </div>
         <div class="column is-half is-paddingless">
           <div class="is-pulled-right">
-            <b-icon icon="plus-circle" @click.native="addReminder"></b-icon>
             <b-icon
-              icon="minus-circle"
+              pack="ionicons"
+              icon="add-circle"
+              @click.native="showReminderModal"
+            ></b-icon>
+            <b-icon
+              pack="ionicons"
+              icon="remove-circle"
               @click.native="confirmRemoveAllReminders"
             ></b-icon>
           </div>
@@ -41,8 +46,12 @@ export default {
     removeAllReminders() {
       // Do the thing
     },
-    addReminder() {
-      // Do the thingy
+    showReminderModal() {
+      this.$store.commit(
+        'reminderModal/setDatePartAsString',
+        this.dayObject.dateFormatted
+      )
+      this.$store.commit('reminderModal/toggleActive', true)
     }
   }
 }
