@@ -10,7 +10,7 @@
             <b-icon
               pack="ionicons"
               icon="add-circle"
-              @click.native="showReminderModal"
+              @click.native="showAddReminderModal"
             ></b-icon>
             <b-icon
               pack="ionicons"
@@ -46,12 +46,11 @@ export default {
     removeAllReminders() {
       // Do the thing
     },
-    showReminderModal() {
-      this.$store.commit(
-        'reminderModal/setDatePartAsString',
-        this.dayObject.dateFormatted
-      )
-      this.$store.commit('reminderModal/toggleActive', true)
+    showAddReminderModal() {
+      this.$store.commit('reminderModal/showAddReminderModal', {
+        date: this.dayObject.dateFormatted,
+        completeDisplayName: this.dayObject.completeDisplayName
+      })
     }
   }
 }
