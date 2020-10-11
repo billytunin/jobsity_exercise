@@ -11,9 +11,13 @@
       >
         <b-input v-model="reminderText" type="text" maxlength="30" />
       </b-field>
-      <b-field label="Time">
+      <b-field
+        label="Time"
+        :type="timeIsAlreadyUsedError ? 'is-danger' : null"
+        :message="timeIsAlreadyUsedError"
+      >
         <b-timepicker
-          v-model="time"
+          v-model="dateTimeForTimepicker"
           rounded
           placeholder="Click to select..."
           icon="time"
@@ -30,29 +34,38 @@
         <b-input v-model="city" placeholder="(Optional)" />
       </b-field>
 
-      <b-button type="is-success" @click="addReminder">Add</b-button>
+      <b-button type="is-success" @click="addReminder">{{
+        isAddMode ? 'Add' : 'Edit'
+      }}</b-button>
     </div>
   </b-modal>
 </template>
 
 <script>
 import moment from 'moment'
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 
 import { validationMixin } from 'vuelidate'
 import { required } from 'vuelidate/lib/validators'
 
-import { TIME_FORMAT } from '~/utils/constants'
+import { DATETIME_FORMAT } from '~/utils/constants'
 
 export default {
   name: 'ReminderModal',
   mixins: [validationMixin],
+  data() {
+    return {
+      dateTimeForTimepicker: null
+    }
+  },
   computed: {
     ...mapState('reminderModal', [
       'reminderData',
-      'datePartAsString',
-      'completeDisplayName'
+      'completeDisplayName',
+      'isAddMode',
+      'originalDateTime'
     ]),
+    ...mapGetters('reminders', ['locateReminderByDateTime']),
     modalActive: {
       get() {
         return this.$store.state.reminderModal.active
@@ -77,12 +90,12 @@ export default {
         this.$store.commit('reminderModal/setReminderColor', newColor)
       }
     },
-    time: {
+    dateTime: {
       get() {
-        return this.reminderData.time
+        return this.reminderData.dateTime
       },
-      set(newTime) {
-        this.$store.commit('reminderModal/setReminderTime', newTime)
+      set(newDateTime) {
+        this.$store.commit('reminderModal/setReminderDateTime', newDateTime)
       }
     },
     city: {
@@ -97,26 +110,49 @@ export default {
       return this.$v.reminderText.$invalid && this.$v.reminderText.$dirty
         ? 'Reminder text is required'
         : null
+    },
+    timeIsAlreadyUsedError() {
+      const isOriginalDateTime = this.dateTime === this.originalDateTime
+      return this.locateReminderByDateTime(this.dateTime) && !isOriginalDateTime
+        ? 'This exact date and time has already been used by a reminder. Please pick another time'
+        : null
+    }
+  },
+  watch: {
+    dateTime: {
+      handler(newDateTime) {
+        this.dateTimeForTimepicker = moment(newDateTime).toDate()
+      },
+      immediate: true
+    },
+    dateTimeForTimepicker: {
+      handler(newTime) {
+        this.dateTime = moment(newTime).format(DATETIME_FORMAT)
+      }
     }
   },
   methods: {
     addReminder() {
       this.$v.$touch()
-      if (this.$v.$invalid) {
+      if (this.$v.$invalid || this.timeIsAlreadyUsedError) {
         return
       }
 
-      this.$store.commit('reminders/addReminder', {
-        reminderObj: {
-          reminderText: this.reminderText,
-          color: this.color,
-          city: this.city,
-          dateTime: `${this.datePartAsString}T${moment(this.time).format(
-            TIME_FORMAT
-          )}`
-        },
-        date: this.datePartAsString
-      })
+      const reminderObj = {
+        reminderText: this.reminderText,
+        color: this.color,
+        city: this.city,
+        dateTime: this.dateTime
+      }
+
+      if (this.isAddMode) {
+        this.$store.commit('reminders/addReminder', reminderObj)
+      } else {
+        this.$store.dispatch('reminders/editReminder', {
+          reminderObj,
+          originalDateTime: this.originalDateTime
+        })
+      }
 
       this.modalActive = false
       this.$v.$reset()

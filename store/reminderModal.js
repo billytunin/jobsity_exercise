@@ -1,8 +1,9 @@
 import moment from 'moment'
+import { DATE_FORMAT } from '~/utils/constants'
 
 const initialReminderData = {
   reminderText: null,
-  time: moment().startOf('day').toDate(),
+  dateTime: moment().startOf('day').toDate(),
   city: null,
   color: 'red'
 }
@@ -10,8 +11,8 @@ const initialReminderData = {
 const initialState = {
   isAddMode: true,
   active: false,
-  datePartAsString: '',
   completeDisplayName: null,
+  originalDateTime: null,
   reminderData: { ...initialReminderData }
 }
 
@@ -21,17 +22,29 @@ export const state = () => ({
 
 export const mutations = {
   showAddReminderModal(state, { date, completeDisplayName }) {
-    state.reminderData = { ...initialReminderData }
+    state.reminderData = {
+      ...initialReminderData,
+      dateTime: moment(date, DATE_FORMAT).startOf('day').toDate()
+    }
     state.active = true
     state.isAddMode = true
-    state.datePartAsString = date
+    state.completeDisplayName = completeDisplayName
+  },
+  showEditReminderModal(state, { reminderObj, completeDisplayName }) {
+    state.reminderData = {
+      ...initialReminderData,
+      ...reminderObj
+    }
+    state.originalDateTime = reminderObj.dateTime
+    state.active = true
+    state.isAddMode = false
     state.completeDisplayName = completeDisplayName
   },
   setReminderText(state, newText) {
     state.reminderData.reminderText = newText
   },
-  setReminderTime(state, newTime) {
-    state.reminderData.time = newTime
+  setReminderDateTime(state, newDateTime) {
+    state.reminderData.dateTime = newDateTime
   },
   setReminderCity(state, newCity) {
     state.reminderData.city = newCity

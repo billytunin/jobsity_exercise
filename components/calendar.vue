@@ -7,7 +7,7 @@
       <div
         v-for="weekDayNumber in weekDayNumbers"
         :key="weekDayNumber"
-        class="column"
+        class="column is-paddingless"
       >
         <calendar-column :week-day-number="weekDayNumber" />
       </div>

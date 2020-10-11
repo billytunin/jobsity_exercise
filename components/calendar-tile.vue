@@ -12,7 +12,6 @@
           >
             {{ dayObject.monthNumber }}
           </span>
-          <span>{{ getRemindersByDate(dayObject.dateFormatted) }}</span>
         </div>
         <div class="column is-half is-paddingless">
           <div class="is-pulled-right">
@@ -30,14 +29,20 @@
         </div>
 
         <!-- Reminders listing -->
-        <div class="column is-12 is-paddingless is-marginless">
-          <span class="reminder-summary">Task 1</span>
-        </div>
-        <div class="column is-12 is-paddingless is-marginless">
-          <span class="reminder-summary">Task 2</span>
-        </div>
-        <div class="column is-12 is-paddingless is-marginless">
-          <span class="reminder-summary">Task 3</span>
+        <div
+          v-for="(reminder, index) in reminders"
+          :key="`reminderText-${index}`"
+          class="column is-12 is-paddingless is-marginless"
+        >
+          <div
+            class="reminder-summary"
+            @click="showEditReminderModal(reminder)"
+          >
+            <span class="reminder-time">{{
+              formatToTime(reminder.dateTime)
+            }}</span>
+            <span class="reminder-text">{{ reminder.reminderText }}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -47,7 +52,11 @@
 <script>
 import moment from 'moment'
 import { mapGetters } from 'vuex'
-import { DATE_FORMAT } from '~/utils/constants'
+import {
+  DATE_FORMAT,
+  DATETIME_FORMAT,
+  DISPLAY_TIME_FORMAT
+} from '~/utils/constants'
 
 export default {
   name: 'CalendarTile',
@@ -59,6 +68,12 @@ export default {
   },
   computed: {
     ...mapGetters('reminders', ['getRemindersByDate']),
+    reminders() {
+      const remindersArray = [
+        ...this.getRemindersByDate(this.dayObject.dateFormatted)
+      ]
+      return remindersArray.sort((a, b) => moment(a.dateTime).diff(b.dateTime))
+    },
     isFromAnotherMonth() {
       return !moment(this.dayObject.dateFormatted, DATE_FORMAT).isBetween(
         moment().startOf('month'),
@@ -91,6 +106,15 @@ export default {
         date: this.dayObject.dateFormatted,
         completeDisplayName: this.dayObject.completeDisplayName
       })
+    },
+    showEditReminderModal(reminder) {
+      this.$store.commit('reminderModal/showEditReminderModal', {
+        reminderObj: reminder,
+        completeDisplayName: this.dayObject.completeDisplayName
+      })
+    },
+    formatToTime(dateTimeString) {
+      return moment(dateTimeString, DATETIME_FORMAT).format(DISPLAY_TIME_FORMAT)
     }
   }
 }
@@ -99,10 +123,15 @@ export default {
 <style scoped>
 .calendar-tile {
   height: 120px;
+  width: 14vw;
   border: 1px solid black;
 }
 .reminder-summary {
-  font-size: 0.7rem;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.8rem;
 }
 .month-number-span {
   font-weight: 800;
@@ -112,5 +141,11 @@ export default {
 }
 .is-from-another-month {
   color: rgba(180, 180, 180, 0.8);
+}
+.reminder-time {
+  width: 20%;
+}
+.reminder-text {
+  width: 80%;
 }
 </style>
