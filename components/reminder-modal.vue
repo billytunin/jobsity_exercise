@@ -34,7 +34,7 @@
         <b-input v-model="city" placeholder="(Optional)" />
       </b-field>
 
-      <b-button type="is-success" @click="addReminder">{{
+      <b-button type="is-success" @click="addOrEditReminder">{{
         isAddMode ? 'Add' : 'Edit'
       }}</b-button>
     </div>
@@ -132,7 +132,7 @@ export default {
     }
   },
   methods: {
-    addReminder() {
+    addOrEditReminder() {
       this.$v.$touch()
       if (this.$v.$invalid || this.timeIsAlreadyUsedError) {
         return
