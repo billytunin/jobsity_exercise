@@ -57,7 +57,7 @@ const getMonthToDisplayRange = () => {
   while (startingDay.isSameOrBefore(endingDay, 'day')) {
     arrayToReturn.push({
       monthNumber: startingDay.format('D'),
-      weekNumber: startingDay.day(),
+      weekDayNumber: startingDay.day(),
       formatted: startingDay.format('MMMM Do'),
       dateFormatted: startingDay.format(DATE_FORMAT),
       completeDisplayName: startingDay.format('dddd, MMMM Do')

@@ -13,3 +13,9 @@ export const mutations = {
     }
   }
 }
+
+export const getters = {
+  getRemindersByDate: state => date => {
+    return state.dates[date] ? state.dates[date].reminders : []
+  }
+}

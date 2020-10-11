@@ -1,9 +1,18 @@
 <template>
   <div class="calendar-tile columns is-multiline is-marginless">
     <div class="column is-12 is-paddingless">
-      <div class="columns is-marginless">
+      <div class="columns is-marginless is-multiline">
         <div class="column is-half is-paddingless">
-          <span>{{ dayObject.monthNumber }}</span>
+          <span
+            :class="{
+              'month-number-span': true,
+              'is-from-another-month': isFromAnotherMonth,
+              'is-sunday-or-saturday': isSundayOrSaturday
+            }"
+          >
+            {{ dayObject.monthNumber }}
+          </span>
+          <span>{{ getRemindersByDate(dayObject.dateFormatted) }}</span>
         </div>
         <div class="column is-half is-paddingless">
           <div class="is-pulled-right">
@@ -19,18 +28,49 @@
             ></b-icon>
           </div>
         </div>
+
+        <!-- Reminders listing -->
+        <div class="column is-12 is-paddingless is-marginless">
+          <span class="reminder-summary">Task 1</span>
+        </div>
+        <div class="column is-12 is-paddingless is-marginless">
+          <span class="reminder-summary">Task 2</span>
+        </div>
+        <div class="column is-12 is-paddingless is-marginless">
+          <span class="reminder-summary">Task 3</span>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import moment from 'moment'
+import { mapGetters } from 'vuex'
+import { DATE_FORMAT } from '~/utils/constants'
+
 export default {
   name: 'CalendarTile',
   props: {
     dayObject: {
       type: Object,
       required: true
+    }
+  },
+  computed: {
+    ...mapGetters('reminders', ['getRemindersByDate']),
+    isFromAnotherMonth() {
+      return !moment(this.dayObject.dateFormatted, DATE_FORMAT).isBetween(
+        moment().startOf('month'),
+        moment().endOf('month'),
+        'day',
+        '[]'
+      )
+    },
+    isSundayOrSaturday() {
+      return (
+        this.dayObject.weekDayNumber === 0 || this.dayObject.weekDayNumber === 6
+      )
     }
   },
   methods: {
@@ -58,7 +98,19 @@ export default {
 
 <style scoped>
 .calendar-tile {
-  height: 80px;
+  height: 120px;
   border: 1px solid black;
+}
+.reminder-summary {
+  font-size: 0.7rem;
+}
+.month-number-span {
+  font-weight: 800;
+}
+.is-sunday-or-saturday {
+  color: rgba(0, 0, 230, 0.9);
+}
+.is-from-another-month {
+  color: rgba(180, 180, 180, 0.8);
 }
 </style>

@@ -21,7 +21,9 @@ export default {
     ...mapState('calendar', { stateDays: 'days', weekDaysMap: 'weekDaysMap' }),
     days() {
       // Return only the days for this weekday
-      return this.stateDays.filter(day => day.weekNumber === this.weekDayNumber)
+      return this.stateDays.filter(
+        day => day.weekDayNumber === this.weekDayNumber
+      )
     },
     dayName() {
       return this.weekDaysMap.find(
