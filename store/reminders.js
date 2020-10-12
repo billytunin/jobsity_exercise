@@ -11,9 +11,17 @@ export const actions = {
     const locatedReminder = getters.locateReminderByDateTime(originalDateTime)
     if (!locatedReminder) {
       throw new Error('No reminder found for specified date and time')
-    } else {
-      commit('commitEditReminder', { reminderObj, locatedReminder })
     }
+
+    commit('commitEditReminder', { reminderObj, locatedReminder })
+  },
+  removeReminder({ getters, commit }, dateTime) {
+    const locatedReminder = getters.locateReminderByDateTime(dateTime)
+    if (!locatedReminder) {
+      throw new Error('No reminder found for specified date and time')
+    }
+
+    commit('commitRemoveReminder', locatedReminder)
   }
 }
 
@@ -40,6 +48,24 @@ export const mutations = {
       locatedReminder.reminderIndex
     ] = { ...reminderObj }
     state.dates = currentDatesArray
+  },
+  commitRemoveReminder(state, locatedReminder) {
+    const currentDatesArray = cloneDeep(state.dates)
+    currentDatesArray[locatedReminder.dateIndex].reminders.splice(
+      locatedReminder.reminderIndex,
+      1
+    )
+    state.dates = currentDatesArray
+  },
+  removeAllReminders(state, date) {
+    const foundDateIndex = state.dates.findIndex(
+      dateObj => dateObj.date === date
+    )
+    if (foundDateIndex === -1) {
+      throw new Error('No reminders found for specified date')
+    }
+
+    state.dates[foundDateIndex].reminders = []
   }
 }
 

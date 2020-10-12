@@ -19,12 +19,12 @@
               pack="ionicons"
               icon="add-circle"
               @click.native="showAddReminderModal"
-            ></b-icon>
+            />
             <b-icon
               pack="ionicons"
               icon="remove-circle"
               @click.native="confirmRemoveAllReminders"
-            ></b-icon>
+            />
           </div>
         </div>
 
@@ -38,10 +38,23 @@
             class="reminder-summary"
             @click="showEditReminderModal(reminder)"
           >
-            <span class="reminder-time">{{
-              formatToTime(reminder.dateTime)
-            }}</span>
-            <span class="reminder-text">{{ reminder.reminderText }}</span>
+            <div class="columns is-marginless">
+              <div class="column is-paddingless is-3">
+                <span>{{ formatToTime(reminder.dateTime) }}</span>
+              </div>
+              <div class="column is-paddingless is-8 reminder-text-container">
+                <span>{{ reminder.reminderText }}</span>
+              </div>
+              <div class="column is-paddingless is-1">
+                <b-icon
+                  pack="ionicons"
+                  icon="trash"
+                  @click.native="
+                    confirmRemoveReminder($event, reminder.dateTime)
+                  "
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -51,7 +64,7 @@
 
 <script>
 import moment from 'moment'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions, mapMutations } from 'vuex'
 import {
   DATE_FORMAT,
   DATETIME_FORMAT,
@@ -89,17 +102,24 @@ export default {
     }
   },
   methods: {
+    ...mapActions('reminders', ['removeReminder']),
+    ...mapMutations('reminders', ['removeAllReminders']),
     confirmRemoveAllReminders() {
       this.$buefy.dialog.confirm({
-        title: 'Privacy Politics',
         message: `Are you sure you want to remove all reminders from ${this.dayObject.formatted}?`,
         confirmText: 'Confirm',
         type: 'is-danger',
-        onConfirm: () => this.removeAllReminders()
+        onConfirm: () => this.removeAllReminders(this.dayObject.dateFormatted)
       })
     },
-    removeAllReminders() {
-      // Do the thing
+    confirmRemoveReminder(event, reminderDateTime) {
+      event.stopPropagation()
+      this.$buefy.dialog.confirm({
+        message: 'Are you sure you want to remove this reminder?',
+        confirmText: 'Confirm',
+        type: 'is-danger',
+        onConfirm: () => this.removeReminder(reminderDateTime)
+      })
     },
     showAddReminderModal() {
       this.$store.commit('reminderModal/showAddReminderModal', {
@@ -127,10 +147,6 @@ export default {
   border: 1px solid black;
 }
 .reminder-summary {
-  width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   font-size: 0.8rem;
 }
 .month-number-span {
@@ -142,10 +158,9 @@ export default {
 .is-from-another-month {
   color: rgba(180, 180, 180, 0.8);
 }
-.reminder-time {
-  width: 20%;
-}
-.reminder-text {
-  width: 80%;
+.reminder-text-container {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>

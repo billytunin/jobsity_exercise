@@ -37,6 +37,7 @@
       <b-button type="is-success" @click="addOrEditReminder">{{
         isAddMode ? 'Add' : 'Edit'
       }}</b-button>
+      <b-button @click="cancel">Cancel</b-button>
     </div>
   </b-modal>
 </template>
@@ -156,6 +157,9 @@ export default {
 
       this.modalActive = false
       this.$v.$reset()
+    },
+    cancel() {
+      this.modalActive = false
     }
   },
   validations: {
