@@ -31,31 +31,13 @@
         <!-- Reminders listing -->
         <div
           v-for="(reminder, index) in reminders"
-          :key="`reminderText-${index}`"
+          :key="`reminder-${index}`"
           class="column is-12 is-paddingless is-marginless"
         >
-          <div
-            class="reminder-summary"
-            @click="showEditReminderModal(reminder)"
-          >
-            <div class="columns is-marginless">
-              <div class="column is-paddingless is-3">
-                <span>{{ formatToTime(reminder.dateTime) }}</span>
-              </div>
-              <div class="column is-paddingless is-8 reminder-text-container">
-                <span>{{ reminder.reminderText }}</span>
-              </div>
-              <div class="column is-paddingless is-1">
-                <b-icon
-                  pack="ionicons"
-                  icon="trash"
-                  @click.native="
-                    confirmRemoveReminder($event, reminder.dateTime)
-                  "
-                />
-              </div>
-            </div>
-          </div>
+          <reminder-summary
+            :reminder="reminder"
+            :day-display-name="dayObject.completeDisplayName"
+          />
         </div>
       </div>
     </div>
@@ -64,15 +46,14 @@
 
 <script>
 import moment from 'moment'
-import { mapGetters, mapActions, mapMutations } from 'vuex'
-import {
-  DATE_FORMAT,
-  DATETIME_FORMAT,
-  DISPLAY_TIME_FORMAT
-} from '~/utils/constants'
+import { mapGetters, mapMutations } from 'vuex'
+import { DATE_FORMAT } from '~/utils/constants'
+
+import ReminderSummary from '~/components/reminder-summary'
 
 export default {
   name: 'CalendarTile',
+  components: { ReminderSummary },
   props: {
     dayObject: {
       type: Object,
@@ -102,7 +83,6 @@ export default {
     }
   },
   methods: {
-    ...mapActions('reminders', ['removeReminder']),
     ...mapMutations('reminders', ['removeAllReminders']),
     confirmRemoveAllReminders() {
       this.$buefy.dialog.confirm({
@@ -112,29 +92,11 @@ export default {
         onConfirm: () => this.removeAllReminders(this.dayObject.dateFormatted)
       })
     },
-    confirmRemoveReminder(event, reminderDateTime) {
-      event.stopPropagation()
-      this.$buefy.dialog.confirm({
-        message: 'Are you sure you want to remove this reminder?',
-        confirmText: 'Confirm',
-        type: 'is-danger',
-        onConfirm: () => this.removeReminder({ dateTime: reminderDateTime })
-      })
-    },
     showAddReminderModal() {
       this.$store.commit('reminderModal/showAddReminderModal', {
         date: this.dayObject.dateFormatted,
         completeDisplayName: this.dayObject.completeDisplayName
       })
-    },
-    showEditReminderModal(reminder) {
-      this.$store.commit('reminderModal/showEditReminderModal', {
-        reminderObj: reminder,
-        completeDisplayName: this.dayObject.completeDisplayName
-      })
-    },
-    formatToTime(dateTimeString) {
-      return moment(dateTimeString, DATETIME_FORMAT).format(DISPLAY_TIME_FORMAT)
     }
   }
 }
@@ -143,11 +105,14 @@ export default {
 <style scoped>
 .calendar-tile {
   height: 120px;
+  overflow-y: scroll;
   width: 14vw;
   border: 1px solid black;
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+  scrollbar-width: none; /* Firefox */
 }
-.reminder-summary {
-  font-size: 0.8rem;
+.calendar-tile::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
 }
 .month-number-span {
   font-weight: 800;
@@ -157,10 +122,5 @@ export default {
 }
 .is-from-another-month {
   color: rgba(180, 180, 180, 0.8);
-}
-.reminder-text-container {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 </style>

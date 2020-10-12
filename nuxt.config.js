@@ -50,7 +50,9 @@ export default {
         // We want to save only the reminders store into localStorage
         localStorage: ['reminders']
       }
-    ]
+    ],
+    // https://saintplay.github.io/vue-swatches/guide/
+    'vue-swatches/nuxt'
   ],
 
   buefy: {

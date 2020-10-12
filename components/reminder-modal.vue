@@ -27,11 +27,7 @@
       </b-field>
 
       <b-field label="Color">
-        <b-select v-model="color">
-          <option value="red">Red</option>
-          <option value="blue">Blue</option>
-          <option value="green">Green</option>
-        </b-select>
+        <v-swatches v-model="color"></v-swatches>
       </b-field>
 
       <b-field label="City">
@@ -48,9 +44,7 @@
             <span v-if="!weather.forecast">
               No data available for this date and/or city
             </span>
-            <span v-else>
-              {{ weather.forecast }}
-            </span>
+            <weather-box v-else :weather-forecast="weather.forecast" />
           </div>
         </div>
       </b-field>
@@ -71,10 +65,13 @@ import { mapState, mapGetters, mapActions } from 'vuex'
 import { validationMixin } from 'vuelidate'
 import { required } from 'vuelidate/lib/validators'
 
+import WeatherBox from '~/components/weather-box'
+
 import { DATETIME_FORMAT, DATE_FORMAT } from '~/utils/constants'
 
 export default {
   name: 'ReminderModal',
+  components: { WeatherBox },
   mixins: [validationMixin],
   data() {
     return {
@@ -141,7 +138,7 @@ export default {
     timeIsAlreadyUsedError() {
       const isOriginalDateTime = this.dateTime === this.originalDateTime
       return this.locateReminderByDateTime(this.dateTime) && !isOriginalDateTime
-        ? 'This exact date and time has already been used by a reminder. Please pick another time'
+        ? 'This exact date and time has already been used by a reminder. Please pick another time and/or date'
         : null
     }
   },
@@ -158,8 +155,17 @@ export default {
       }
     },
     city: debounce(function () {
-      this.loadWeather()
-    }, 300)
+      if (!this.weather.loading) {
+        this.loadWeather()
+      }
+    }, 300),
+    modalActive: {
+      handler(newFlag) {
+        if (newFlag) {
+          this.loadWeather()
+        }
+      }
+    }
   },
   methods: {
     ...mapActions('weather', ['loadWeatherForCityByDate']),

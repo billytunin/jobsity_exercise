@@ -9,8 +9,11 @@
 <script>
 import { mapState } from 'vuex'
 
+import CalendarTile from '~/components/calendar-tile'
+
 export default {
   name: 'CalendarColumn',
+  components: { CalendarTile },
   props: {
     weekDayNumber: {
       type: Number,

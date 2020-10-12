@@ -1,7 +1,12 @@
 import moment from 'moment'
-import { OPENWEATHER_API_KEY, DATE_FORMAT } from '~/utils/constants'
+import {
+  OPENWEATHER_API_KEY,
+  DATE_FORMAT,
+  FAHRENHEIT_STRING
+} from '~/utils/constants'
 
 export const state = () => ({
+  units: FAHRENHEIT_STRING,
   weatherByCity: {}
 })
 
@@ -26,7 +31,7 @@ export const actions = {
       const lat = resp.data.coord.lat
       const lon = resp.data.coord.lon
       const dailyForecasts = await this.$axios(
-        `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&exclude=current,minutely,hourly,alerts&appid=${OPENWEATHER_API_KEY}`
+        `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&units=${state.units}&exclude=current,minutely,hourly,alerts&appid=${OPENWEATHER_API_KEY}`
       )
       const cityForecasts = {}
       const today = moment()
@@ -53,5 +58,9 @@ export const actions = {
 export const mutations = {
   addCityData(state, { city, cityForecasts }) {
     state.weatherByCity[city] = cityForecasts
+  },
+  setUnits(state, newUnits) {
+    state.weatherByCity = {}
+    state.units = newUnits
   }
 }

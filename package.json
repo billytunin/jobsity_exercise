@@ -20,6 +20,7 @@
     "nuxt": "^2.14.6",
     "nuxt-buefy": "^0.4.3",
     "nuxt-vuex-localstorage": "^1.2.7",
+    "vue-swatches": "^2.1.0",
     "vuelidate": "^0.7.5"
   },
   "devDependencies": {

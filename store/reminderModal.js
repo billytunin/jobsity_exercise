@@ -5,7 +5,7 @@ const initialReminderData = {
   reminderText: null,
   dateTime: moment().startOf('day').toDate(),
   city: null,
-  color: 'red'
+  color: '#F2C511'
 }
 
 const initialState = {

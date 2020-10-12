@@ -69,6 +69,9 @@ export const mutations = {
       locatedReminder.reminderIndex,
       1
     )
+    if (!currentDatesArray[locatedReminder.dateIndex].reminders.length) {
+      currentDatesArray.splice(locatedReminder.dateIndex, 1)
+    }
     state.dates = currentDatesArray
   },
   removeAllReminders(state, date) {
@@ -79,7 +82,7 @@ export const mutations = {
       throw new Error('No reminders found for specified date')
     }
 
-    state.dates[foundDateIndex].reminders = []
+    state.dates.splice(foundDateIndex, 1)
   }
 }
 
