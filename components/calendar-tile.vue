@@ -118,7 +118,7 @@ export default {
         message: 'Are you sure you want to remove this reminder?',
         confirmText: 'Confirm',
         type: 'is-danger',
-        onConfirm: () => this.removeReminder(reminderDateTime)
+        onConfirm: () => this.removeReminder({ dateTime: reminderDateTime })
       })
     },
     showAddReminderModal() {

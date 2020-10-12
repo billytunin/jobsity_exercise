@@ -12,15 +12,15 @@
         <b-input v-model="reminderText" type="text" maxlength="30" />
       </b-field>
       <b-field
-        label="Time"
+        label="Date & Time"
         :type="timeIsAlreadyUsedError ? 'is-danger' : null"
         :message="timeIsAlreadyUsedError"
       >
-        <b-timepicker
+        <b-datetimepicker
           v-model="dateTimeForTimepicker"
           rounded
           placeholder="Click to select..."
-          icon="time"
+          icon="calendar"
         />
       </b-field>
       <b-field label="Color">

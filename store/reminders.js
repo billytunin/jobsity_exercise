@@ -7,16 +7,30 @@ export const state = () => ({
 })
 
 export const actions = {
-  editReminder({ getters, commit }, { reminderObj, originalDateTime }) {
+  editReminder(
+    { getters, commit, dispatch },
+    { reminderObj, originalDateTime }
+  ) {
     const locatedReminder = getters.locateReminderByDateTime(originalDateTime)
     if (!locatedReminder) {
       throw new Error('No reminder found for specified date and time')
     }
 
-    commit('commitEditReminder', { reminderObj, locatedReminder })
+    const isDayChange = !moment(originalDateTime).isSame(
+      reminderObj.dateTime,
+      'day'
+    )
+    if (isDayChange) {
+      dispatch('removeReminder', { locatedReminder })
+      commit('addReminder', reminderObj)
+    } else {
+      commit('commitEditReminder', { reminderObj, locatedReminder })
+    }
   },
-  removeReminder({ getters, commit }, dateTime) {
-    const locatedReminder = getters.locateReminderByDateTime(dateTime)
+  removeReminder({ getters, commit }, { dateTime, locatedReminder }) {
+    if (!locatedReminder) {
+      locatedReminder = getters.locateReminderByDateTime(dateTime)
+    }
     if (!locatedReminder) {
       throw new Error('No reminder found for specified date and time')
     }
