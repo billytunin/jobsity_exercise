@@ -26,6 +26,7 @@ export const mutations = {
       ...initialReminderData,
       dateTime: moment(date, DATE_FORMAT).startOf('day').toDate()
     }
+    state.originalDateTime = null
     state.active = true
     state.isAddMode = true
     state.completeDisplayName = completeDisplayName

@@ -4,6 +4,7 @@
       <div class="reminder-modal-title">
         <span>{{ completeDisplayName }}</span>
       </div>
+
       <b-field
         label="Reminder"
         :type="reminderTextError ? 'is-danger' : null"
@@ -11,6 +12,7 @@
       >
         <b-input v-model="reminderText" type="text" maxlength="30" />
       </b-field>
+
       <b-field
         label="Date & Time"
         :type="timeIsAlreadyUsedError ? 'is-danger' : null"
@@ -23,6 +25,7 @@
           icon="calendar"
         />
       </b-field>
+
       <b-field label="Color">
         <b-select v-model="color">
           <option value="red">Red</option>
@@ -30,8 +33,26 @@
           <option value="green">Green</option>
         </b-select>
       </b-field>
+
       <b-field label="City">
         <b-input v-model="city" placeholder="(Optional)" />
+      </b-field>
+
+      <b-field label="Weather">
+        <div class="weather-info-container">
+          <b-loading
+            v-model="weather.loading"
+            :is-full-page="false"
+          ></b-loading>
+          <div v-if="weather.loading === false">
+            <span v-if="!weather.forecast">
+              No data available for this date and/or city
+            </span>
+            <span v-else>
+              {{ weather.forecast }}
+            </span>
+          </div>
+        </div>
       </b-field>
 
       <b-button type="is-success" @click="addOrEditReminder">{{
@@ -44,19 +65,24 @@
 
 <script>
 import moment from 'moment'
-import { mapState, mapGetters } from 'vuex'
+import { debounce } from 'lodash'
+import { mapState, mapGetters, mapActions } from 'vuex'
 
 import { validationMixin } from 'vuelidate'
 import { required } from 'vuelidate/lib/validators'
 
-import { DATETIME_FORMAT } from '~/utils/constants'
+import { DATETIME_FORMAT, DATE_FORMAT } from '~/utils/constants'
 
 export default {
   name: 'ReminderModal',
   mixins: [validationMixin],
   data() {
     return {
-      dateTimeForTimepicker: null
+      dateTimeForTimepicker: null,
+      weather: {
+        loading: false,
+        forecast: null
+      }
     }
   },
   computed: {
@@ -130,9 +156,13 @@ export default {
       handler(newTime) {
         this.dateTime = moment(newTime).format(DATETIME_FORMAT)
       }
-    }
+    },
+    city: debounce(function () {
+      this.loadWeather()
+    }, 300)
   },
   methods: {
+    ...mapActions('weather', ['loadWeatherForCityByDate']),
     addOrEditReminder() {
       this.$v.$touch()
       if (this.$v.$invalid || this.timeIsAlreadyUsedError) {
@@ -160,6 +190,14 @@ export default {
     },
     cancel() {
       this.modalActive = false
+    },
+    async loadWeather() {
+      this.weather.loading = true
+      this.weather.forecast = await this.loadWeatherForCityByDate({
+        city: this.city,
+        date: moment(this.dateTime, DATETIME_FORMAT).format(DATE_FORMAT)
+      })
+      this.weather.loading = false
     }
   },
   validations: {
@@ -174,5 +212,9 @@ export default {
 .reminder-modal {
   padding: 0.75rem 1rem 1rem 1rem;
   background-color: white;
+}
+.weather-info-container {
+  position: relative;
+  min-height: 60px;
 }
 </style>
