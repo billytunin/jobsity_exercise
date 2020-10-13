@@ -5,14 +5,14 @@
       <span>{{ weatherForecast.descriptionCaption }}</span>
     </div>
     <div class="column is-half">
-      <span>
+      <span test-id="min-span">
         MIN: {{ weatherForecast.min }}°{{
           weatherUnits === FAHRENHEIT_STRING ? 'F' : 'C'
         }}
       </span>
     </div>
     <div class="column is-half">
-      <span>
+      <span test-id="max-span">
         MAX: {{ weatherForecast.max }}°{{
           weatherUnits === FAHRENHEIT_STRING ? 'F' : 'C'
         }}

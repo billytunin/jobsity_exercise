@@ -177,7 +177,13 @@ export default {
     ...mapActions('weather', ['loadWeatherForCityByDate']),
     addOrEditReminder() {
       this.$v.$touch()
-      if (this.$v.$invalid || this.timeIsAlreadyUsedError) {
+      if (
+        this.$v.$invalid ||
+        this.timeIsAlreadyUsedError ||
+        /* In theory, the following condition could never be set UI, because the input field has a maxlength=30 validator */
+        /* Nonetheless, in order to comply with the unit-test, this condition is checked */
+        this.reminderText.length > 30
+      ) {
         return
       }
 

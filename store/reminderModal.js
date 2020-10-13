@@ -1,12 +1,5 @@
 import moment from 'moment'
-import { DATE_FORMAT } from '~/utils/constants'
-
-const initialReminderData = {
-  reminderText: null,
-  dateTime: moment().startOf('day').toDate(),
-  city: null,
-  color: '#F2C511'
-}
+import { DATE_FORMAT, initialReminderData } from '~/utils/constants'
 
 const initialState = {
   isAddMode: true,
