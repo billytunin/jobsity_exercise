@@ -3,10 +3,10 @@
     <div class="columns">
       <div class="column is-one-third"></div>
       <div class="column is-one-third has-text-centered">
-        <span>{{ monthName }}</span>
+        <span class="month-name">{{ monthName }}</span>
       </div>
       <div class="column is-one-third">
-        <div class="is-pulled-right">
+        <div class="is-pulled-right units-selector-container">
           <b-field>
             <b-radio-button
               v-model="componentWeatherUnits"
@@ -24,7 +24,7 @@
         </div>
       </div>
     </div>
-    <div class="columns">
+    <div class="columns calendar-columns-container">
       <div
         v-for="weekDayNumber in weekDayNumbers"
         :key="weekDayNumber"
@@ -73,3 +73,17 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.month-name {
+  font-family: 'Nunito';
+  font-weight: 700;
+  font-size: 2rem;
+}
+.units-selector-container {
+  margin-top: 5px;
+}
+.calendar-columns-container {
+  margin-top: 1.5rem;
+}
+</style>
