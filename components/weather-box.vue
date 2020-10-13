@@ -19,7 +19,7 @@
       </span>
     </div>
     <div class="column is-12">
-      <span>Humidity: {{ weatherForecast.humidity }}</span>
+      <span>Humidity: {{ weatherForecast.humidity }}%</span>
     </div>
   </div>
 </template>

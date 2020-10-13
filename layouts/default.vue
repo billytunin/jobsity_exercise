@@ -10,7 +10,7 @@
 export default {
   mounted() {
     this.$store.commit('calendar/setMonthName')
-    this.$store.commit('calendar/setDays')
+    this.$store.dispatch('calendar/setDays')
   }
 }
 </script>
