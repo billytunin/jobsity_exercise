@@ -7,7 +7,16 @@ import Buefy from 'buefy'
 
 import ReminderModal from '@/components/reminder-modal'
 
-import { initialReminderData } from '~/utils/constants'
+import {
+  state as reminderModalState,
+  mutations as reminderModalMutations
+} from '~/store/reminderModal'
+import { state as calendarState } from '~/store/calendar'
+import {
+  state as remindersState,
+  mutations as remindersMutations,
+  getters as remindersGetters
+} from '~/store/reminders'
 
 // Ignoring this custom component because we don't need to unit-test it
 Vue.config.ignoredElements = ['v-swatches']
@@ -19,63 +28,53 @@ localVue.use(Buefy)
 
 describe('Reminder Modal', () => {
   let store
-  const addReminderMock = jest.fn()
+  const reminderText = 'testing'
+  const city = 'Buenos Aires'
+  const color = 'red'
+  const date = '2020-10-13'
+  const dateTime = '2020-10-13T21:00:00'
 
   beforeEach(() => {
     store = new Vuex.Store({
       modules: {
         reminderModal: {
           namespaced: true,
-          state: () => ({
-            active: true,
-            reminderData: {
-              ...initialReminderData
-            },
-            completeDisplayName: 'Saturday, October 10th',
-            isAddMode: true,
-            originalDateTime: null
-          }),
-          mutations: {
-            // TODO: Move setReminderText to an abstract piece of code that can be consumed both in this
-            // unit test and in the real store. This would be helpful to avoid having to update this mutation
-            // definition every time the real one from the store changes.
-            setReminderText(state, newText) {
-              state.reminderData.reminderText = newText
-            },
-            toggleActive() {}
-          }
+          state: reminderModalState,
+          mutations: reminderModalMutations
         },
         calendar: {
           namespaced: true,
-          state: () => ({
-            currentCalendarFirstDateTime: null,
-            currentCalendarLastDateTime: null
-          })
+          state: calendarState
         },
         reminders: {
           namespaced: true,
-          getters: {
-            locateReminderByDateTime: () => () => null
-          },
-          mutations: {
-            addReminder: addReminderMock
-          }
+          state: remindersState,
+          getters: remindersGetters,
+          mutations: remindersMutations
         }
       }
     })
+
+    // Setup, on the modal, the data that should be used to create the reminder
+    store.commit('reminderModal/showAddReminderModal', { date })
+    store.commit('reminderModal/setReminderText', reminderText)
+    store.commit('reminderModal/setReminderCity', city)
+    store.commit('reminderModal/setReminderColor', color)
+    store.commit('reminderModal/setReminderDateTime', dateTime)
   })
 
-  test('if no reminder text is provided, addReminder mutation should not be called', () => {
+  test('if no reminder text is provided, reminder shouldnt be added', () => {
     const wrapper = shallowMount(ReminderModal, {
       store,
       localVue
     })
 
+    store.commit('reminderModal/setReminderText', null)
     wrapper.vm.addOrEditReminder()
-    expect(addReminderMock).not.toHaveBeenCalled()
+    expect(store.state.reminders.dates.length).toEqual(0)
   })
 
-  test('if reminder text is over 30 characters, addReminder mutation should not be called', () => {
+  test('if reminder text is over 30 characters, reminder shouldnt be added', () => {
     const wrapper = shallowMount(ReminderModal, {
       store,
       localVue
@@ -86,17 +85,25 @@ describe('Reminder Modal', () => {
       'this a very long reminder over 30 characters long'
     )
     wrapper.vm.addOrEditReminder()
-    expect(addReminderMock).not.toHaveBeenCalled()
+    expect(store.state.reminders.dates.length).toEqual(0)
   })
 
-  test('if all inputs are correct, addReminder mutation should be called', () => {
+  test('if all inputs are correct, reminder should be added', () => {
     const wrapper = shallowMount(ReminderModal, {
       store,
       localVue
     })
 
-    store.commit('reminderModal/setReminderText', 'testing')
     wrapper.vm.addOrEditReminder()
-    expect(addReminderMock).toHaveBeenCalled()
+
+    expect(store.state.reminders.dates[0].date).toEqual(date)
+    expect(store.state.reminders.dates[0].reminders[0].reminderText).toEqual(
+      reminderText
+    )
+    expect(store.state.reminders.dates[0].reminders[0].city).toEqual(city)
+    expect(store.state.reminders.dates[0].reminders[0].color).toEqual(color)
+    expect(store.state.reminders.dates[0].reminders[0].dateTime).toEqual(
+      dateTime
+    )
   })
 })
