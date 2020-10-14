@@ -12,3 +12,9 @@ export default {
   components: { Calendar }
 }
 </script>
+
+<style>
+.section {
+  padding-left: 1.3vw;
+}
+</style>

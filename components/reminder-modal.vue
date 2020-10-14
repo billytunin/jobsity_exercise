@@ -1,7 +1,7 @@
 <template>
   <b-modal :active.sync="modalActive">
     <div class="reminder-modal">
-      <div class="reminder-modal-title">
+      <div class="reminder-modal-title has-text-centered">
         <span>{{ completeDisplayName }}</span>
       </div>
 
@@ -15,6 +15,7 @@
 
       <b-field
         label="Date & Time"
+        class="extra-margin-bottom"
         :type="timeIsAlreadyUsedError ? 'is-danger' : null"
         :message="timeIsAlreadyUsedError"
       >
@@ -28,28 +29,15 @@
         />
       </b-field>
 
-      <b-field label="Color">
-        <v-swatches v-model="color"></v-swatches>
+      <b-field label="Color" class="extra-margin-bottom">
+        <v-swatches v-model="color" :swatches="colorOptions"></v-swatches>
       </b-field>
 
-      <b-field label="City">
+      <b-field label="City" class="extra-margin-bottom">
         <b-input v-model="city" placeholder="(Optional)" />
       </b-field>
 
-      <b-field label="Weather">
-        <div class="weather-info-container">
-          <b-loading
-            v-model="weather.loading"
-            :is-full-page="false"
-          ></b-loading>
-          <div v-if="weather.loading === false">
-            <span v-if="!weather.forecast">
-              No data available for this date and/or city
-            </span>
-            <weather-box v-else :weather-forecast="weather.forecast" />
-          </div>
-        </div>
-      </b-field>
+      <weather-box :city="city" :date="currentDate" />
 
       <b-button type="is-success" @click="addOrEditReminder">{{
         isAddMode ? 'Add' : 'Edit'
@@ -61,15 +49,14 @@
 
 <script>
 import moment from 'moment'
-import { debounce } from 'lodash'
-import { mapState, mapGetters, mapActions } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 
 import { validationMixin } from 'vuelidate'
 import { required } from 'vuelidate/lib/validators'
 
 import WeatherBox from '~/components/weather-box'
 
-import { DATETIME_FORMAT, DATE_FORMAT } from '~/utils/constants'
+import { DATETIME_FORMAT, DATE_FORMAT, COLOR_OPTIONS } from '~/utils/constants'
 
 export default {
   name: 'ReminderModal',
@@ -77,11 +64,8 @@ export default {
   mixins: [validationMixin],
   data() {
     return {
-      dateTimeForTimepicker: null,
-      weather: {
-        loading: false,
-        forecast: null
-      }
+      colorOptions: COLOR_OPTIONS,
+      dateTimeForTimepicker: null
     }
   },
   computed: {
@@ -146,6 +130,9 @@ export default {
       return this.locateReminderByDateTime(this.dateTime) && !isOriginalDateTime
         ? 'This exact date and time has already been used by a reminder. Please pick another time and/or date'
         : null
+    },
+    currentDate() {
+      return moment(this.dateTime, DATETIME_FORMAT).format(DATE_FORMAT)
     }
   },
   watch: {
@@ -159,28 +146,15 @@ export default {
       handler(newTime) {
         this.dateTime = moment(newTime).format(DATETIME_FORMAT)
       }
-    },
-    city: debounce(function () {
-      if (!this.weather.loading) {
-        this.loadWeather()
-      }
-    }, 300),
-    modalActive: {
-      handler(newFlag) {
-        if (newFlag) {
-          this.loadWeather()
-        }
-      }
     }
   },
   methods: {
-    ...mapActions('weather', ['loadWeatherForCityByDate']),
     addOrEditReminder() {
       this.$v.$touch()
       if (
         this.$v.$invalid ||
         this.timeIsAlreadyUsedError ||
-        /* In theory, the following condition could never be set UI, because the input field has a maxlength=30 validator */
+        /* In theory, the following condition could never be set in UI, because the input field has a maxlength=30 validator */
         /* Nonetheless, in order to comply with the unit-test, this condition is checked */
         this.reminderText.length > 30
       ) {
@@ -208,14 +182,6 @@ export default {
     },
     cancel() {
       this.modalActive = false
-    },
-    async loadWeather() {
-      this.weather.loading = true
-      this.weather.forecast = await this.loadWeatherForCityByDate({
-        city: this.city,
-        date: moment(this.dateTime, DATETIME_FORMAT).format(DATE_FORMAT)
-      })
-      this.weather.loading = false
     }
   },
   validations: {
@@ -230,9 +196,10 @@ export default {
 .reminder-modal {
   padding: 0.75rem 1rem 1rem 1rem;
   background-color: white;
+  border-radius: 15px;
 }
-.weather-info-container {
-  position: relative;
-  min-height: 60px;
+.reminder-modal-title {
+  font-size: 1.5rem;
+  text-transform: uppercase;
 }
 </style>

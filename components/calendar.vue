@@ -26,11 +26,14 @@
     </div>
     <div class="columns calendar-columns-container">
       <div
-        v-for="weekDayNumber in weekDayNumbers"
+        v-for="(weekDayNumber, index) in weekDayNumbers"
         :key="weekDayNumber"
-        class="column is-paddingless"
+        class="column is-paddingless is-narrow"
       >
-        <calendar-column :week-day-number="weekDayNumber" />
+        <calendar-column
+          :week-day-number="weekDayNumber"
+          :is-first-column="index === 0"
+        />
       </div>
     </div>
     <reminder-modal />
@@ -74,11 +77,16 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+@import '@/assets/scss/global.scss';
+
 .month-name {
-  font-family: 'Nunito';
   font-weight: 700;
-  font-size: 2rem;
+  font-size: 1.7rem;
+  background-color: $general-bg-color;
+  padding: 1rem 2.4rem 1rem 2.4rem;
+  border-radius: 40px;
+  text-transform: uppercase;
 }
 .units-selector-container {
   margin-top: 5px;

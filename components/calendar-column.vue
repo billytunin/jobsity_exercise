@@ -1,9 +1,20 @@
 <template>
   <div>
-    <div class="has-text-centered">
+    <div class="day-name-container has-text-centered">
       <span>{{ dayName }}</span>
     </div>
-    <calendar-tile v-for="day in days" :key="day.formatted" :day-object="day" />
+    <div
+      class="calendar-tiles-container"
+      :class="{
+        'is-first-column': isFirstColumn
+      }"
+    >
+      <calendar-tile
+        v-for="day in days"
+        :key="day.formatted"
+        :day-object="day"
+      />
+    </div>
   </div>
 </template>
 <script>
@@ -17,6 +28,10 @@ export default {
   props: {
     weekDayNumber: {
       type: Number,
+      required: true
+    },
+    isFirstColumn: {
+      type: Boolean,
       required: true
     }
   },
@@ -36,3 +51,22 @@ export default {
   }
 }
 </script>
+
+<style scoped lang="scss">
+@import '@/assets/scss/global.scss';
+
+.day-name-container {
+  padding: 1rem;
+  background-color: $general-bg-color;
+  border-top-left-radius: 40px;
+  border-top-right-radius: 40px;
+  font-size: 1.2rem;
+}
+.calendar-tiles-container {
+  border-right: $general-borders;
+  border-top: $general-borders;
+}
+.is-first-column {
+  border-left: $general-borders;
+}
+</style>

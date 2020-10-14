@@ -1,22 +1,31 @@
 <template>
   <div
     :style="reminderStyle"
-    class="reminder-summary"
+    class="reminder-summary cursor-is-pointer"
     @click="showEditReminderModal(reminder)"
   >
     <div class="columns is-marginless">
-      <div class="column is-paddingless is-3">
-        <span>{{ formatToTime(reminder.dateTime) }}</span>
+      <div class="column is-paddingless is-4">
+        <div class="time-caption-container">
+          <div class="time-caption has-text-centered">
+            <span class="time-caption-text">{{
+              formatToTime(reminder.dateTime)
+            }}</span>
+          </div>
+        </div>
       </div>
-      <div class="column is-paddingless is-8 reminder-text-container">
+      <div class="column is-paddingless is-6 reminder-text-container">
         <span>{{ reminder.reminderText }}</span>
       </div>
-      <div class="column is-paddingless is-1">
-        <b-icon
-          pack="ionicons"
-          icon="trash"
-          @click.native="confirmRemoveReminder($event, reminder.dateTime)"
-        />
+      <div class="column is-paddingless is-2">
+        <div class="remove-icon-container is-pulled-right">
+          <b-button
+            icon-right="trash"
+            size="is-small"
+            pack="ionicons"
+            @click="confirmRemoveReminder($event, reminder.dateTime)"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -77,7 +86,9 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+@import '@/assets/scss/global.scss';
+
 .reminder-summary {
   font-size: 0.8rem;
 }
@@ -85,5 +96,30 @@ export default {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-family: 'Roboto';
+  padding-top: 12px !important;
+}
+.time-caption-container {
+  display: table;
+  height: 100%;
+  width: 100%;
+}
+.time-caption {
+  font-size: 0.7rem;
+  display: table-cell;
+  vertical-align: middle;
+}
+.time-caption-text {
+  border-radius: 8px;
+  padding: 1px 3px 1px 3px;
+  background-color: $general-bg-color;
+}
+.remove-icon-container {
+  padding: 8px;
+}
+@media (max-width: 1231px) {
+  .time-caption {
+    font-size: 0.6rem;
+  }
 }
 </style>

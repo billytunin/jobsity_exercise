@@ -1,5 +1,5 @@
 <template>
-  <div class="columns">
+  <div class="columns app-container">
     <div class="column is-12">
       <nuxt />
     </div>
@@ -14,3 +14,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.app-container {
+  margin-top: 0;
+}
+</style>
