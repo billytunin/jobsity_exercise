@@ -39,10 +39,12 @@
 
       <weather-box :city="city" :date="currentDate" />
 
-      <b-button type="is-success" @click="addOrEditReminder">{{
-        isAddMode ? 'Add' : 'Edit'
-      }}</b-button>
-      <b-button @click="cancel">Cancel</b-button>
+      <div class="buttons is-right">
+        <b-button type="is-success" @click="addOrEditReminder">
+          {{ isAddMode ? 'Add' : 'Edit' }}
+        </b-button>
+        <b-button @click="cancel">Cancel</b-button>
+      </div>
     </div>
   </b-modal>
 </template>
