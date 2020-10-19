@@ -3,7 +3,8 @@ import moment from 'moment'
 import { DATE_FORMAT, DATETIME_FORMAT } from '~/utils/constants'
 
 export const state = () => ({
-  dates: []
+  dates: [],
+  lastId: 0
 })
 
 export const actions = {
@@ -11,7 +12,10 @@ export const actions = {
     { getters, commit, dispatch },
     { reminderObj, originalDateTime }
   ) {
-    const locatedReminder = getters.locateReminderByDateTime(originalDateTime)
+    const locatedReminder = getters.locateReminderById({
+      dateTime: originalDateTime,
+      id: reminderObj.id
+    })
     if (!locatedReminder) {
       throw new Error('No reminder found for specified date and time')
     }
@@ -27,9 +31,9 @@ export const actions = {
       commit('commitEditReminder', { reminderObj, locatedReminder })
     }
   },
-  removeReminder({ getters, commit }, { dateTime, locatedReminder }) {
+  removeReminder({ getters, commit }, { dateTime, id, locatedReminder }) {
     if (!locatedReminder) {
-      locatedReminder = getters.locateReminderByDateTime(dateTime)
+      locatedReminder = getters.locateReminderById({ dateTime, id })
     }
     if (!locatedReminder) {
       throw new Error('No reminder found for specified date and time')
@@ -41,12 +45,16 @@ export const actions = {
 
 export const mutations = {
   addReminder(state, reminderObj) {
+    reminderObj.id = state.lastId
+    state.lastId++
+
     const date = moment(reminderObj.dateTime, DATETIME_FORMAT).format(
       DATE_FORMAT
     )
     const foundDateIndex = state.dates.findIndex(
       dateObj => dateObj.date === date
     )
+
     if (foundDateIndex !== -1) {
       state.dates[foundDateIndex].reminders.push(reminderObj)
     } else {
@@ -97,7 +105,11 @@ export const getters = {
       return []
     }
   },
-  locateReminderByDateTime: state => dateTime => {
+  /*
+   * Locate reminder by ID. Uses dateTime property of the reminder for efficiency (dateTime allows to know in which date array the reminder is)
+   * and, thus, we save the time consumed by that search.
+   */
+  locateReminderById: state => ({ dateTime, id }) => {
     const dateString = moment(dateTime, DATETIME_FORMAT).format(DATE_FORMAT)
     const foundDateIndex = state.dates.findIndex(
       dateObj => dateObj.date === dateString
@@ -106,7 +118,7 @@ export const getters = {
     if (foundDateIndex !== -1) {
       const foundReminderIndex = state.dates[
         foundDateIndex
-      ].reminders.findIndex(reminderObj => reminderObj.dateTime === dateTime)
+      ].reminders.findIndex(reminderObj => reminderObj.id === id)
       return foundReminderIndex !== -1
         ? { dateIndex: foundDateIndex, reminderIndex: foundReminderIndex }
         : null

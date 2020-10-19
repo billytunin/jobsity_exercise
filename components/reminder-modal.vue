@@ -13,12 +13,7 @@
         <b-input v-model="reminderText" type="text" maxlength="30" />
       </b-field>
 
-      <b-field
-        label="Date & Time"
-        class="extra-margin-bottom"
-        :type="timeIsAlreadyUsedError ? 'is-danger' : null"
-        :message="timeIsAlreadyUsedError"
-      >
+      <b-field label="Date & Time" class="extra-margin-bottom">
         <b-datetimepicker
           v-model="dateTimeForTimepicker"
           rounded
@@ -51,7 +46,7 @@
 
 <script>
 import moment from 'moment'
-import { mapState, mapGetters } from 'vuex'
+import { mapState } from 'vuex'
 
 import { validationMixin } from 'vuelidate'
 import { required } from 'vuelidate/lib/validators'
@@ -81,7 +76,6 @@ export default {
       'currentCalendarFirstDateTime',
       'currentCalendarLastDateTime'
     ]),
-    ...mapGetters('reminders', ['locateReminderByDateTime']),
     modalActive: {
       get() {
         return this.$store.state.reminderModal.active
@@ -127,12 +121,6 @@ export default {
         ? 'Reminder text is required'
         : null
     },
-    timeIsAlreadyUsedError() {
-      const isOriginalDateTime = this.dateTime === this.originalDateTime
-      return this.locateReminderByDateTime(this.dateTime) && !isOriginalDateTime
-        ? 'This exact date and time has already been used by a reminder. Please pick another time and/or date'
-        : null
-    },
     currentDate() {
       return moment(this.dateTime, DATETIME_FORMAT).format(DATE_FORMAT)
     }
@@ -155,7 +143,6 @@ export default {
       this.$v.$touch()
       if (
         this.$v.$invalid ||
-        this.timeIsAlreadyUsedError ||
         /* In theory, the following condition could never be set in UI, because the input field has a maxlength=30 validator */
         /* Nonetheless, in order to comply with the unit-test, this condition is checked */
         this.reminderText.length > 30
@@ -164,6 +151,7 @@ export default {
       }
 
       const reminderObj = {
+        id: this.reminderData.id,
         reminderText: this.reminderText,
         color: this.color,
         city: this.city,

@@ -20,10 +20,13 @@
       <div class="column is-paddingless is-2">
         <div class="remove-icon-container is-pulled-right">
           <b-button
-            icon-right="trash"
+            icon-right="close"
             size="is-small"
+            type="is-danger"
             pack="ionicons"
-            @click="confirmRemoveReminder($event, reminder.dateTime)"
+            @click="
+              confirmRemoveReminder($event, reminder.id, reminder.dateTime)
+            "
           />
         </div>
       </div>
@@ -73,13 +76,13 @@ export default {
     formatToTime(dateTimeString) {
       return moment(dateTimeString, DATETIME_FORMAT).format(DISPLAY_TIME_FORMAT)
     },
-    confirmRemoveReminder(event, reminderDateTime) {
+    confirmRemoveReminder(event, id, dateTime) {
       event.stopPropagation()
       this.$buefy.dialog.confirm({
         message: 'Are you sure you want to remove this reminder?',
         confirmText: 'Confirm',
         type: 'is-danger',
-        onConfirm: () => this.removeReminder({ dateTime: reminderDateTime })
+        onConfirm: () => this.removeReminder({ id, dateTime })
       })
     }
   }
