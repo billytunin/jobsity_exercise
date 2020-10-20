@@ -32,7 +32,7 @@
         <b-input v-model="city" placeholder="(Optional)" />
       </b-field>
 
-      <weather-box :city="city" :date="currentDate" />
+      <weather-box :city="city" :date-time="dateTime" />
 
       <div class="buttons is-right">
         <b-button type="is-success" @click="addOrEditReminder">
@@ -53,7 +53,7 @@ import { required } from 'vuelidate/lib/validators'
 
 import WeatherBox from '~/components/weather-box'
 
-import { DATETIME_FORMAT, DATE_FORMAT, COLOR_OPTIONS } from '~/utils/constants'
+import { DATETIME_FORMAT, COLOR_OPTIONS } from '~/utils/constants'
 
 export default {
   name: 'ReminderModal',
@@ -120,9 +120,6 @@ export default {
       return this.$v.reminderText.$invalid && this.$v.reminderText.$dirty
         ? 'Reminder text is required'
         : null
-    },
-    currentDate() {
-      return moment(this.dateTime, DATETIME_FORMAT).format(DATE_FORMAT)
     }
   },
   watch: {

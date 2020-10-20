@@ -40,7 +40,7 @@ describe('Weather Box', () => {
   test('span elements render weather info correctly based on props', async () => {
     const propsData = {
       city: 'Tokyo',
-      date: '2020-10-14'
+      dateTime: '2020-10-14T20:00:00'
     }
 
     const wrapper = shallowMount(WeatherBox, {

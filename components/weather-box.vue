@@ -2,6 +2,9 @@
   <div class="weather-info-container extra-margin-bottom">
     <div class="has-text-centered">
       <span class="weather-title">Weather</span>
+      <p class="clarification">
+        (for selected {{ isDayForecast ? 'day' : 'time' }})
+      </p>
     </div>
     <b-loading v-model="weather.loading" :is-full-page="false"></b-loading>
     <div v-if="weather.loading === false" class="weather-body">
@@ -15,16 +18,25 @@
             weather.forecast.descriptionCaption
           }}</span>
         </div>
-        <div class="column is-half">
-          <span class="temp-span" test-id="min-span">
-            MIN: {{ weather.forecast.min }}°{{
-              weatherUnits === FAHRENHEIT_STRING ? 'F' : 'C'
-            }}
-          </span>
-        </div>
-        <div class="column is-half">
-          <span class="temp-span" test-id="max-span">
-            MAX: {{ weather.forecast.max }}°{{
+        <template v-if="isDayForecast">
+          <div class="column is-half">
+            <span class="temp-span" test-id="min-span">
+              MIN: {{ weather.forecast.min }}°{{
+                weatherUnits === FAHRENHEIT_STRING ? 'F' : 'C'
+              }}
+            </span>
+          </div>
+          <div class="column is-half">
+            <span class="temp-span" test-id="max-span">
+              MAX: {{ weather.forecast.max }}°{{
+                weatherUnits === FAHRENHEIT_STRING ? 'F' : 'C'
+              }}
+            </span>
+          </div>
+        </template>
+        <div v-else class="column is-12">
+          <span class="temp-span">
+            TEMPERATURE: {{ weather.forecast.temp }}°{{
               weatherUnits === FAHRENHEIT_STRING ? 'F' : 'C'
             }}
           </span>
@@ -37,9 +49,14 @@
   </div>
 </template>
 <script>
+import moment from 'moment'
 import { mapState, mapActions } from 'vuex'
 import { debounce } from 'lodash'
-import { FAHRENHEIT_STRING } from '~/utils/constants'
+import {
+  FAHRENHEIT_STRING,
+  DATETIME_FORMAT,
+  DATE_FORMAT
+} from '~/utils/constants'
 
 export default {
   name: 'WeatherBox',
@@ -48,7 +65,7 @@ export default {
       type: String,
       default: null
     },
-    date: {
+    dateTime: {
       type: String,
       required: true
     }
@@ -59,7 +76,8 @@ export default {
       weather: {
         loading: false,
         forecast: null
-      }
+      },
+      isDayForecast: true
     }
   },
   computed: {
@@ -70,19 +88,46 @@ export default {
       if (!this.weather.loading) {
         this.loadWeather()
       }
-    }, 300)
+    }, 300),
+    dateTime() {
+      if (!this.weather.loading) {
+        this.loadWeather()
+      }
+    }
   },
   mounted() {
     this.loadWeather()
   },
   methods: {
-    ...mapActions('weather', ['loadWeatherForCityByDate']),
+    ...mapActions('weather', [
+      'loadWeatherForCityByDate',
+      'loadWeatherForCityByHour'
+    ]),
     async loadWeather() {
       this.weather.loading = true
-      this.weather.forecast = await this.loadWeatherForCityByDate({
-        city: this.city,
-        date: this.date
-      })
+
+      const dateTimeIsWithin48HoursForecasts = moment(
+        this.dateTime,
+        DATETIME_FORMAT
+      ).isBetween(
+        moment().startOf('hour'),
+        moment().add(47, 'hours').startOf('hour'),
+        'minute',
+        '[]'
+      )
+      if (dateTimeIsWithin48HoursForecasts) {
+        this.isDayForecast = false
+        this.weather.forecast = await this.loadWeatherForCityByHour({
+          city: this.city,
+          dateTime: this.dateTime
+        })
+      } else {
+        this.isDayForecast = true
+        this.weather.forecast = await this.loadWeatherForCityByDate({
+          city: this.city,
+          date: moment(this.dateTime, DATETIME_FORMAT).format(DATE_FORMAT)
+        })
+      }
       this.weather.loading = false
     }
   }
@@ -123,5 +168,9 @@ $border-radius: 4px;
   color: white;
   padding: 0.3rem 1rem 0.3rem 1rem;
   border-radius: 15px;
+}
+.clarification {
+  font-size: 0.7rem;
+  font-style: italic;
 }
 </style>
