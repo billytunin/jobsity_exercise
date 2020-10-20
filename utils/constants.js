@@ -21,7 +21,7 @@ export const COLOR_OPTIONS = [
 ]
 
 export const initialReminderData = {
-  reminderText: null,
+  text: null,
   dateTime: moment().startOf('day').toDate(),
   city: null,
   color: COLOR_OPTIONS[0]

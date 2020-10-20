@@ -15,7 +15,7 @@
         </div>
       </div>
       <div class="column is-paddingless is-6 reminder-text-container">
-        <span>{{ reminder.reminderText }}</span>
+        <span>{{ reminder.text }}</span>
       </div>
       <div class="column is-paddingless is-2">
         <div class="remove-icon-container is-pulled-right">

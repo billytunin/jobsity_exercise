@@ -34,18 +34,6 @@ export const mutations = {
     state.isAddMode = false
     state.completeDisplayName = completeDisplayName
   },
-  setReminderText(state, newText) {
-    state.reminderData.reminderText = newText
-  },
-  setReminderDateTime(state, newDateTime) {
-    state.reminderData.dateTime = newDateTime
-  },
-  setReminderCity(state, newCity) {
-    state.reminderData.city = newCity
-  },
-  setReminderColor(state, newColor) {
-    state.reminderData.color = newColor
-  },
   toggleActive(state, newFlag) {
     state.active = newFlag
   }

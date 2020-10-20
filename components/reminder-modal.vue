@@ -10,7 +10,7 @@
         :type="reminderTextError ? 'is-danger' : null"
         :message="reminderTextError"
       >
-        <b-input v-model="reminderText" type="text" maxlength="30" />
+        <b-input v-model="reminder.text" type="text" maxlength="30" />
       </b-field>
 
       <b-field label="Date & Time" class="extra-margin-bottom">
@@ -19,18 +19,23 @@
           rounded
           placeholder="Click to select..."
           icon="calendar"
+          :min-datetime="startOfYear"
+          :max-datetime="endOfYear"
         />
       </b-field>
 
       <b-field label="Color" class="extra-margin-bottom">
-        <v-swatches v-model="color" :swatches="colorOptions"></v-swatches>
+        <v-swatches
+          v-model="reminder.color"
+          :swatches="colorOptions"
+        ></v-swatches>
       </b-field>
 
       <b-field label="City" class="extra-margin-bottom">
-        <b-input v-model="city" placeholder="(Optional)" />
+        <b-input v-model="reminder.city" placeholder="(Optional)" />
       </b-field>
 
-      <weather-box :city="city" :date-time="dateTime" />
+      <weather-box :city="reminder.city" :date-time="reminder.dateTime" />
 
       <div class="buttons is-right">
         <b-button type="is-success" @click="addOrEditReminder">
@@ -51,7 +56,11 @@ import { required } from 'vuelidate/lib/validators'
 
 import WeatherBox from '~/components/weather-box'
 
-import { DATETIME_FORMAT, COLOR_OPTIONS } from '~/utils/constants'
+import {
+  DATETIME_FORMAT,
+  COLOR_OPTIONS,
+  initialReminderData
+} from '~/utils/constants'
 
 export default {
   name: 'ReminderModal',
@@ -59,65 +68,40 @@ export default {
   mixins: [validationMixin],
   data() {
     return {
+      reminder: { ...initialReminderData },
       colorOptions: COLOR_OPTIONS,
-      dateTimeForTimepicker: null
+      dateTimeForTimepicker: null,
+      startOfYear: moment().startOf('year').toDate(),
+      endOfYear: moment().endOf('year').toDate()
     }
   },
   computed: {
     ...mapState('reminderModal', [
       'reminderData',
+      'active',
       'completeDisplayName',
       'isAddMode',
       'originalDateTime'
     ]),
     modalActive: {
       get() {
-        return this.$store.state.reminderModal.active
+        return this.active
       },
       set(newFlag) {
         this.$store.commit('reminderModal/toggleActive', newFlag)
       }
     },
-    reminderText: {
-      get() {
-        return this.reminderData.reminderText
-      },
-      set(newText) {
-        this.$store.commit('reminderModal/setReminderText', newText)
-      }
-    },
-    color: {
-      get() {
-        return this.reminderData.color
-      },
-      set(newColor) {
-        this.$store.commit('reminderModal/setReminderColor', newColor)
-      }
-    },
-    dateTime: {
-      get() {
-        return this.reminderData.dateTime
-      },
-      set(newDateTime) {
-        this.$store.commit('reminderModal/setReminderDateTime', newDateTime)
-      }
-    },
-    city: {
-      get() {
-        return this.reminderData.city
-      },
-      set(newCity) {
-        this.$store.commit('reminderModal/setReminderCity', newCity)
-      }
-    },
     reminderTextError() {
-      return this.$v.reminderText.$invalid && this.$v.reminderText.$dirty
+      return this.$v.reminder.text.$invalid && this.$v.reminder.text.$dirty
         ? 'Reminder text is required'
         : null
     }
   },
   watch: {
-    dateTime: {
+    reminderData(newData) {
+      this.reminder = { ...newData }
+    },
+    'reminder.dateTime': {
       handler(newDateTime) {
         this.dateTimeForTimepicker = moment(newDateTime).toDate()
       },
@@ -125,7 +109,7 @@ export default {
     },
     dateTimeForTimepicker: {
       handler(newTime) {
-        this.dateTime = moment(newTime).format(DATETIME_FORMAT)
+        this.reminder.dateTime = moment(newTime).format(DATETIME_FORMAT)
       }
     }
   },
@@ -136,24 +120,16 @@ export default {
         this.$v.$invalid ||
         /* In theory, the following condition could never be set in UI, because the input field has a maxlength=30 validator */
         /* Nonetheless, in order to comply with the unit-test, this condition is checked */
-        this.reminderText.length > 30
+        this.reminder.text.length > 30
       ) {
         return
       }
 
-      const reminderObj = {
-        id: this.reminderData.id,
-        reminderText: this.reminderText,
-        color: this.color,
-        city: this.city,
-        dateTime: this.dateTime
-      }
-
       if (this.isAddMode) {
-        this.$store.commit('reminders/addReminder', reminderObj)
+        this.$store.commit('reminders/addReminder', this.reminder)
       } else {
         this.$store.dispatch('reminders/editReminder', {
-          reminderObj,
+          reminderObj: this.reminder,
           originalDateTime: this.originalDateTime
         })
       }
@@ -166,8 +142,10 @@ export default {
     }
   },
   validations: {
-    reminderText: {
-      required
+    reminder: {
+      text: {
+        required
+      }
     }
   }
 }
