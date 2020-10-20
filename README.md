@@ -77,4 +77,3 @@ on the root directory.
 - - Hourly forecasts: Any date/time between today and 48 hours onwards.
 - - That's why if you add a reminder on an older date than today or a later date than the next 7 days, the application will show no data available.
 - The whole application is based on user's timezone. No UTC. If date/time is changed on the user's machine or user's browser, it will be reflected on the application.
-- Because of time constraints I was not able to add the Bonus objective *"Expand the calendar to support more than the current month."* . Considering that the calendar and everything about the reminders get built dinamically (except for a couple of small things) adding that feature should be pretty easy. If needed, given a little bit more time, I could add that.
