@@ -103,7 +103,10 @@ export default {
     },
     'reminder.dateTime': {
       handler(newDateTime) {
-        this.dateTimeForTimepicker = moment(newDateTime).toDate()
+        this.dateTimeForTimepicker = moment(
+          newDateTime,
+          DATETIME_FORMAT
+        ).toDate()
       },
       immediate: true
     },

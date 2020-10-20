@@ -22,7 +22,7 @@ export const COLOR_OPTIONS = [
 
 export const initialReminderData = {
   text: null,
-  dateTime: moment().startOf('day').toDate(),
+  dateTime: moment().startOf('day').format(DATETIME_FORMAT),
   city: null,
   color: COLOR_OPTIONS[0]
 }
