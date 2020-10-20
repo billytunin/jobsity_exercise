@@ -9,8 +9,7 @@
 <script>
 export default {
   mounted() {
-    this.$store.commit('calendar/setMonthName')
-    this.$store.dispatch('calendar/setDays')
+    this.$store.dispatch('calendar/setupMonths')
   }
 }
 </script>

@@ -1,10 +1,9 @@
 import moment from 'moment'
-import { DATE_FORMAT } from '~/utils/constants'
+import { DATE_FORMAT, MONTH_DISPLAY_FORMAT } from '~/utils/constants'
 
 export const state = () => ({
-  currentCalendarFirstDateTime: null,
-  currentCalendarLastDateTime: null,
-  monthName: '',
+  monthDate: null,
+  monthName: null,
   days: [],
   weekDaysMap: [
     {
@@ -35,30 +34,38 @@ export const state = () => ({
       name: 'Saturday',
       number: 6
     }
-  ]
+  ],
+  months: {}
 })
 
 export const actions = {
-  setDays({ commit }) {
-    commit('getMonthToDisplayRange')
+  setupMonths({ commit }) {
+    const months = {}
+    const startingMonth = moment().startOf('year')
+    const endingMonth = moment().endOf('year')
+
+    while (startingMonth.isSameOrBefore(endingMonth, 'month')) {
+      months[startingMonth.format(MONTH_DISPLAY_FORMAT)] = startingMonth.format(
+        DATE_FORMAT
+      )
+      startingMonth.add(1, 'month')
+    }
+
+    commit('setMonths', months)
+    commit('setMonth', moment().format(MONTH_DISPLAY_FORMAT))
   }
 }
 
 export const mutations = {
-  setMonthName(state) {
-    state.monthName = moment().format('MMMM')
-  },
-  getMonthToDisplayRange(state) {
+  setMonth(state, monthName) {
+    const date = state.months[monthName] || moment().format(DATE_FORMAT)
     const arrayToReturn = []
     // This moment object will hold the first Sunday in the month. If the first day of the month isn't a Sunday,
     // it will be the closest previous Sunday to it.
-    const startingDay = moment().startOf('month').day(0)
+    const startingDay = moment(date, DATE_FORMAT).startOf('month').day(0)
     // This moment object will hold the last Saturday in the month. If the last day of the month isn't a Saturday,
     // it will be the closest next Saturday to it.
-    const endingDay = moment().endOf('month').day(6)
-
-    state.currentCalendarFirstDateTime = startingDay.toDate()
-    state.currentCalendarLastDateTime = endingDay.toDate()
+    const endingDay = moment(date, DATE_FORMAT).endOf('month').day(6)
 
     while (startingDay.isSameOrBefore(endingDay, 'day')) {
       arrayToReturn.push({
@@ -73,5 +80,10 @@ export const mutations = {
     }
 
     state.days = arrayToReturn
+    state.monthDate = date
+    state.monthName = monthName
+  },
+  setMonths(state, months) {
+    state.months = months
   }
 }

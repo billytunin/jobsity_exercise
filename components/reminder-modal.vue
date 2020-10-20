@@ -18,8 +18,6 @@
           v-model="dateTimeForTimepicker"
           rounded
           placeholder="Click to select..."
-          :min-datetime="currentCalendarFirstDateTime"
-          :max-datetime="currentCalendarLastDateTime"
           icon="calendar"
         />
       </b-field>
@@ -71,10 +69,6 @@ export default {
       'completeDisplayName',
       'isAddMode',
       'originalDateTime'
-    ]),
-    ...mapState('calendar', [
-      'currentCalendarFirstDateTime',
-      'currentCalendarLastDateTime'
     ]),
     modalActive: {
       get() {

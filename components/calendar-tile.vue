@@ -59,7 +59,7 @@
 
 <script>
 import moment from 'moment'
-import { mapGetters, mapMutations } from 'vuex'
+import { mapGetters, mapMutations, mapState } from 'vuex'
 import { DATE_FORMAT } from '~/utils/constants'
 
 import ReminderSummary from '~/components/reminder-summary'
@@ -74,6 +74,7 @@ export default {
     }
   },
   computed: {
+    ...mapState('calendar', ['monthDate']),
     ...mapGetters('reminders', ['getRemindersByDate']),
     reminders() {
       const remindersArray = [
@@ -83,8 +84,8 @@ export default {
     },
     isFromAnotherMonth() {
       return !moment(this.dayObject.dateFormatted, DATE_FORMAT).isBetween(
-        moment().startOf('month'),
-        moment().endOf('month'),
+        moment(this.monthDate, DATE_FORMAT).startOf('month'),
+        moment(this.monthDate, DATE_FORMAT).endOf('month'),
         'day',
         '[]'
       )

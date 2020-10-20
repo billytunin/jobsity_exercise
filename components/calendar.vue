@@ -3,7 +3,15 @@
     <div class="columns">
       <div class="column is-one-third"></div>
       <div class="column is-one-third has-text-centered">
-        <span class="month-name">{{ monthName }}</span>
+        <b-select v-model="currentMonth" rounded size="is-medium">
+          <option
+            v-for="monthName in monthNames"
+            :key="monthName"
+            :value="monthName"
+          >
+            {{ monthName }}
+          </option>
+        </b-select>
       </div>
       <div class="column is-one-third">
         <div class="is-pulled-right units-selector-container">
@@ -57,8 +65,16 @@ export default {
     }
   },
   computed: {
-    ...mapState('calendar', ['weekDaysMap', 'monthName']),
+    ...mapState('calendar', ['weekDaysMap', 'months', 'monthName']),
     ...mapState('weather', { weatherUnits: 'units' }),
+    currentMonth: {
+      get() {
+        return this.monthName
+      },
+      set(newValue) {
+        this.setMonth(newValue)
+      }
+    },
     componentWeatherUnits: {
       get() {
         return this.weatherUnits
@@ -69,25 +85,19 @@ export default {
     },
     weekDayNumbers() {
       return this.weekDaysMap.map(weekDayObj => weekDayObj.number)
+    },
+    monthNames() {
+      return Object.keys(this.months)
     }
   },
   methods: {
-    ...mapMutations('weather', { setWeatherUnits: 'setUnits' })
+    ...mapMutations('weather', { setWeatherUnits: 'setUnits' }),
+    ...mapMutations('calendar', ['setMonth'])
   }
 }
 </script>
 
-<style scoped lang="scss">
-@import '@/assets/scss/global.scss';
-
-.month-name {
-  font-weight: 700;
-  font-size: 1.7rem;
-  background-color: $general-bg-color;
-  padding: 1rem 2.4rem 1rem 2.4rem;
-  border-radius: 40px;
-  text-transform: uppercase;
-}
+<style scoped>
 .units-selector-container {
   margin-top: 5px;
 }

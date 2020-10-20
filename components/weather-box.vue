@@ -2,7 +2,7 @@
   <div class="weather-info-container extra-margin-bottom">
     <div class="has-text-centered">
       <span class="weather-title">Weather</span>
-      <p class="clarification">
+      <p v-show="weather.forecast" class="clarification">
         (for selected {{ isDayForecast ? 'day' : 'time' }})
       </p>
     </div>
